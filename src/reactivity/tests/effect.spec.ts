@@ -9,7 +9,6 @@ describe('effect', () => {
             nextAge++;
         });
         const obj2 = reactive({age: 1});
-        // obj2.age + 1;
         expect(nextAge).toBe(1);
         obj.age++;
         expect(nextAge).toBe(2);
