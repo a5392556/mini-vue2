@@ -3,7 +3,9 @@ import { extend } from "../utils/shared";
 // 当前的 effect 实例
 let currentEffect: ReactiveEffect | undefined = undefined;
 // 事件依赖收集总和
-const trackMaps = new WeakMap<Object, Map<string | symbol, Set<ReactiveEffect> > >();
+const trackMaps = new WeakMap<Object, Map<string | symbol, Set<ReactiveEffect>>>();
+// 判断当前依赖是否要收集
+let shouldTrack = false;
 /**
  * 依赖收集函数
  * @param fn 
@@ -28,22 +30,32 @@ export function effect(fn: Function, options?: EffectOptionsType) {
  * @param key 
  */
 export function track(target: any, key: string | symbol) {
+
+    if(!isTracking()) return;
+
     let trackTarget = trackMaps.get(target);
+    // 根据 target 来查找或生成对应的 map
     if (!trackTarget) {
         trackTarget = new Map<string | symbol, Set<ReactiveEffect>>();
         trackMaps.set(target, trackTarget);
     }
+    // 根据 key 来查找或生成对应的 Set
     let dep = trackTarget.get(key);
     if (!dep) {
         dep = new Set<ReactiveEffect>();
         trackTarget.set(key, dep);
     }
-    if (currentEffect) {
-        !dep.has(currentEffect) && dep.add(currentEffect);
-        // 反向收集 dep, 此作用是这 stop 的时候能删掉 dep 中对应的 effect
-        if (!currentEffect.deps.some(cdep => cdep === dep)) {
-            currentEffect.deps.push(dep);
-        }
+    // 收集依赖
+    trackEffect(dep);
+}
+
+export function trackEffect(dep: Set<ReactiveEffect>) {
+    currentEffect = currentEffect as ReactiveEffect;
+    // 如果 effect 存在就收集
+    !dep.has(currentEffect) && dep.add(currentEffect);
+    // 反向收集 dep, 此作用是这 stop 的时候能删掉 dep 中对应的 effect
+    if (!currentEffect.deps.some(cdep => cdep === dep)) {
+        currentEffect.deps.push(dep);
     }
 }
 /**
@@ -58,18 +70,25 @@ export function trigger(target: Object, key: string | symbol) {
     const triggerTarget = trackMaps.get(target);
     if (triggerTarget) {
         const dep = triggerTarget.get(key);
-        dep?.forEach(effect => {
-            // 如果 scheduler 存在优先执行 scheduler
-            effect.scheduler ? effect.scheduler() : effect.run();
-        });
+        // 触发依赖
+        dep && triggerEffect(dep);
     }
 }
+
+export function triggerEffect(dep: Set<ReactiveEffect>) {
+
+    dep?.forEach(effect => {
+        // 如果 scheduler 存在优先执行 scheduler
+        effect.scheduler ? effect.scheduler() : effect.run();
+    });
+}
+
 // 删除依赖
 export function stop(runner) {
     (runner.effect as ReactiveEffect).stop();
 }
 
-class ReactiveEffect {
+export class ReactiveEffect {
     protected _fn: Function;
     public scheduler: Function | undefined;
     public onStop: Function | undefined;
@@ -85,11 +104,18 @@ class ReactiveEffect {
         this.avtive = true;
     }
     public run() {
+        // 如果当前的 effect 已经被 stop, 则不会进行收集, 所以不执行下一步
+        if(!this.avtive) {
+            return this._fn();
+        }
         currentEffect = this;
-        return this._fn();
+        shouldTrack = true;
+        const res = this._fn();
+        shouldTrack = false;
+        return res;
     }
     public stop() {
-        if(this.avtive) {
+        if (this.avtive) {
             // 删除对应的依赖
             clearupEffect(this);
             this.onStop && this.onStop();
@@ -98,7 +124,13 @@ class ReactiveEffect {
     }
 }
 // 删除对应的依赖
-function clearupEffect(effect:ReactiveEffect) {
+function clearupEffect(effect: ReactiveEffect) {
     effect.deps.forEach(dep => dep.delete(effect));
+    // effect 都被清除了, 反向收集的 deps 也没有任何意义, 所以清除
+    effect.deps.length = 0;
+}
+
+export function isTracking() {
+    return shouldTrack && currentEffect !== undefined;
 }
 

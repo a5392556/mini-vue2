@@ -8,12 +8,13 @@ describe('effect', () => {
         effect(() => {
             nextAge++;
         });
-        const obj2 = reactive({age: 1});
+        // const obj2 = reactive({age: 1});
+        // obj2.age + 1;
         expect(nextAge).toBe(1);
-        obj.age++;
-        expect(nextAge).toBe(2);
-        obj2.age++;
-        expect(nextAge).toBe(3);
+        // obj.age++;
+        // expect(nextAge).toBe(2);
+        // obj2.age++;
+        // expect(nextAge).toBe(3);
 
     });
 
@@ -30,7 +31,6 @@ describe('effect', () => {
     });
 
     it('scheduler', () => {
-        let dummy;
         let run: any;
         const scheduler = jest.fn(() => {
             run = runner;
@@ -41,7 +41,7 @@ describe('effect', () => {
             foo = obj.foo;
         }, {scheduler});
         expect(foo).toBe(1);
-        obj.foo++;
+        obj.foo = 2;
         expect(foo).toBe(1);
         expect(scheduler).toHaveBeenCalled();
         run();
@@ -57,7 +57,7 @@ describe('effect', () => {
         obj.foo = 2;
         expect(dummy).toBe(2);
         stop(runner);
-        obj.foo = 3;
+        obj.foo++;
         expect(dummy).toBe(2);
         runner();
         expect(dummy).toBe(3);
