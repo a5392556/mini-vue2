@@ -31,7 +31,7 @@ function handleSetupResult(instance: ComponentType, setupResult: Function | obje
     }
     finishComponentSetup(instance);
 }
-
+// 完成组件的 setup
 function finishComponentSetup(instance: ComponentType) {
     const component = instance.type;
     if(component.render) {
