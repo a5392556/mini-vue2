@@ -76,7 +76,6 @@ export function trigger(target: Object, key: string | symbol) {
 }
 
 export function triggerEffect(dep: Set<ReactiveEffect>) {
-
     dep?.forEach(effect => {
         // 如果 scheduler 存在优先执行 scheduler
         effect.scheduler ? effect.scheduler() : effect.run();
