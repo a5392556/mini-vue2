@@ -3,7 +3,11 @@ import Foo from './Foo.js';
 export default {
     render() {
         window.self = this;
-        return h('div',{id:'root'},[ 'hi, ' + this.msg, h(Foo, {count: 1})]);
+        return h('div',{id:'root'},[ 'hi, ' + this.msg, h(Foo, {
+            onAdd() {
+                console.log('onAdd');
+            }
+        })]);
         // return   h('button', {class: 'red', onClick: () => {console.log(111)}}, this.msg );
     },
     setup() {

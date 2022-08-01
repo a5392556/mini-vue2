@@ -9,7 +9,8 @@ export function cerateComponentInstace(vnode: VNodeType) {
         setupState: {},
         render: () => {},
         proxy: null,
-        props: {}
+        props: {},
+        emit: () => {}
     };
     return componentInstace;
 }
@@ -29,7 +30,9 @@ function setupStatefulComponent(instance: ComponentType) {
     instance.proxy = new Proxy({_: instance}, CompPublicInstanceHandlers);
     const { setup } = component;
     if (setup) {
-        const setupResult = setup(shallowReadonly(props));
+        const setupResult = setup(shallowReadonly(props), {
+            emit: instance.emit
+        });
         // 判断这个结果是 object 还是 function
         handleSetupResult(instance, setupResult);
     }

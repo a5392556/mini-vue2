@@ -4,5 +4,6 @@ declare type ComponentType = {
     setupState: object,
     render: Function,
     proxy: Proxy,
-    props: Object
+    props: Object,
+    emit: Function
 }

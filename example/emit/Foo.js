@@ -1,14 +1,24 @@
 import {h} from '../../libs/guide-mini-vue.esm.js';
 export default {
     render() {
-        // window.self = this;
-        // return h('div',{id:'root'},[ 'hi, ' + this.msg, h('p', {class: 'red'}, 'red'),  h('p', {class: 'blue'}, 'red')]);
-        return h('div', {}, 'foo:' + this.count);
+        const btn = h(
+            'button',
+            {
+                onClick: this.emitAdd
+            },
+            'emitAdd'
+        );
+        const foo = h('p', {}, 'Foo');
+        return h('div', {}, [foo, btn]);
     },
-    setup(props) {
-        props.count++;
+    setup(props, {emit}) {
+        const emitAdd = () => {
+            console.log('emit add');
+            emit('add');
+        }
         return {
-            msg: 'mini-vue'
+            msg: 'mini-vue',
+            emitAdd
         }
     }
 }
