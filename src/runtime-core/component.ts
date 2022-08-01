@@ -49,10 +49,10 @@ function handleSetupResult(instance: ComponentType, setupResult: Function | obje
 }
 // 完成组件的 setup
 function finishComponentSetup(instance: ComponentType) {
-    const instace = instance.type;
+    const component = instance.type;
     // 这里当组件初始化时 component 还是用户定义的 template
-    if(instace.render) {
-        instance.render = instace.render;
+    if(component.render) {
+        instance.render = component.render;
     }
 }
 

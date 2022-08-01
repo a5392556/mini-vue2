@@ -1,5 +1,5 @@
 import { hasOwn } from "../utils/shared";
-
+// 获取组件中的数据
 export const CompPublicInstanceHandlers = {
     get({_: instance}, key) {
         const {

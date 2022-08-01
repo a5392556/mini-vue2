@@ -27,13 +27,13 @@ function mountComponent(vnode: VNodeType, container: HTMLElement) {
 function processElement(vnode: VNodeType, container: HTMLElement) {
     mountElement(vnode, container);
 }
-
 // 挂载元素
 function mountElement(vnode: VNodeType, container: HTMLElement) {
     const {
         type, props
     } = vnode;
     const el = vnode.el = document.createElement(type as keyof HTMLElementTagNameMap);
+    // 添加了事件的监听
     for (const key in props) {
         if(isOn(key)) {
             el.addEventListener(key.slice(2).toLowerCase(), props[key]);
@@ -48,6 +48,7 @@ function mountChildren(vnode: VNodeType, el: HTMLElement) {
     const {
         children
     } = vnode;
+    // 利用位运算进行判断，如果子元素是文字则直接添加，否则如果是数组则是继续 patch
     if (vnode.shapeFlag & ShapeFlags.TEXT_CHILDREN) {
         el.textContent = children;
     } else if (vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
@@ -63,7 +64,6 @@ function setupRenderEffect(instance: ComponentType, vnode: VNodeType, container:
         patch(subTree, container);
     }
     vnode.el = subTree.el;
-
 }
 
 
