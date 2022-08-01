@@ -11,3 +11,11 @@ export function isString(raw) {
 export function isArray(raw) {
     return Array.isArray(raw);
 }
+
+export function isOn(funName: string) {
+    return /^on[A-Z]/.test(funName);    
+}
+
+export function hasOwn(obj: Object, key) {
+    return Object.prototype.hasOwnProperty.call(obj, key);
+}

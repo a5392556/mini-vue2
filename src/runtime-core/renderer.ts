@@ -1,65 +1,69 @@
-import { isArray, isObject, isString } from "../utils/shared";
 import { cerateComponentInstace, setupComponent } from "./component";
-
+import { ShapeFlags } from "../utils/ShapeFlags";
+import { isOn } from "../utils/shared";
 export function render(vnode: VNodeType, container: HTMLElement) {
     patch(vnode, container);
 }
 function patch(vnode: VNodeType, container: HTMLElement) {
-    const {
-        type
-    } = vnode;
     // 通过 vnode 的 type 来分别处理
-    if(isObject(type)) {
+    if (ShapeFlags.STATEFUL_COMPONENT & vnode.shapeFlag) {
         processComponent(vnode, container);
-    }else if(isString(type)) {
+    } else if (ShapeFlags.ELEMENT & vnode.shapeFlag) {
         processElement(vnode, container);
     }
 }
-// 挂载 component
+// 处理 component
 function processComponent(vnode: VNodeType, container: HTMLElement) {
     mountComponent(vnode, container);
 }
-
+// 挂载 component
 function mountComponent(vnode: VNodeType, container: HTMLElement) {
     const instance = cerateComponentInstace(vnode);
     // 初始化组件状态
     setupComponent(instance);
-    console.log(instance);
-    setupRenderEffect(instance, container);
+    setupRenderEffect(instance, vnode, container);
 }
 // 挂载 element
 function processElement(vnode: VNodeType, container: HTMLElement) {
     mountElement(vnode, container);
 }
 
+// 挂载元素
 function mountElement(vnode: VNodeType, container: HTMLElement) {
     const {
-        type, props, children
+        type, props
     } = vnode;
-    const el = document.createElement(type);
+    const el = vnode.el = document.createElement(type as keyof HTMLElementTagNameMap);
     for (const key in props) {
-        el.setAttribute(key, props[key]);
+        if(isOn(key)) {
+            el.addEventListener(key.slice(2).toLowerCase(), props[key]);
+        }   
+        else el.setAttribute(key, props[key]);
     }
-    mountChildren(children, el);
+    mountChildren(vnode, el);
     container.appendChild(el);
-
 }
 // 挂载 children
-function mountChildren(children: any, el: HTMLElement) {
-    if (isString(children)) {
+function mountChildren(vnode: VNodeType, el: HTMLElement) {
+    const {
+        children
+    } = vnode;
+    if (vnode.shapeFlag & ShapeFlags.TEXT_CHILDREN) {
         el.textContent = children;
-    } else if (isArray(children)) {
+    } else if (vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
         children.forEach(v => {
             patch(v, el);
         });
     }
 }
 // 创建完 component 后执行
-function setupRenderEffect(instance: ComponentType, container: HTMLElement) {
-    const subTree = instance.render();
-    if(subTree) {
+function setupRenderEffect(instance: ComponentType, vnode: VNodeType, container: HTMLElement) {
+    const subTree = instance.render.call(instance.proxy);
+    if (subTree) {
         patch(subTree, container);
     }
+    vnode.el = subTree.el;
+
 }
 
 

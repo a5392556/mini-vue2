@@ -1,9 +1,9 @@
 import { render } from "./renderer";
 import { createVNode } from "./vnode"
 
-export function createApp(rootComponent: HTMLElement) {
+export function createApp(rootComponent: RootTemplateType) {
     return {
-        mount(rootContainer) {
+        mount(rootContainer: HTMLElement) {
             const vnode = createVNode(rootComponent);
             render(vnode, rootContainer);
         }
