@@ -4,8 +4,11 @@ export default {
     render() {
         window.self = this;
         return h('div',{id:'root'},[ 'hi, ' + this.msg, h(Foo, {
-            onAdd() {
-                console.log('onAdd');
+            onAdd(a, b) {
+                console.log('onAdd', a, b);
+            },
+            onAddFoo() {
+                console.log('on-add-foo');
             }
         })]);
         // return   h('button', {class: 'red', onClick: () => {console.log(111)}}, this.msg );

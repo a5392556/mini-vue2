@@ -14,7 +14,8 @@ export default {
     setup(props, {emit}) {
         const emitAdd = () => {
             console.log('emit add');
-            emit('add');
+            emit('add', 1, 2);
+            emit('add-foo');
         }
         return {
             msg: 'mini-vue',

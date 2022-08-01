@@ -1,4 +1,5 @@
 import { shallowReadonly } from "../reactivity/reactive";
+import { emit } from "./componentEmit";
 import { initProps } from "./componentProps";
 import { CompPublicInstanceHandlers } from "./componentPublicInstance";
 
@@ -12,6 +13,7 @@ export function cerateComponentInstace(vnode: VNodeType) {
         props: {},
         emit: () => {}
     };
+    componentInstace.emit = emit.bind(null, componentInstace);
     return componentInstace;
 }
 
