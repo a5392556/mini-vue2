@@ -2,7 +2,8 @@ import { shallowReadonly } from "../reactivity/reactive";
 import { emit } from "./componentEmit";
 import { initProps } from "./componentProps";
 import { CompPublicInstanceHandlers } from "./componentPublicInstance";
-
+import { initSlots } from "./componentSlots";
+// 创建一个组件实例
 export function cerateComponentInstace(vnode: VNodeType) {
     const componentInstace: ComponentType = {
         vnode,
@@ -11,15 +12,16 @@ export function cerateComponentInstace(vnode: VNodeType) {
         render: () => {},
         proxy: null,
         props: {},
-        emit: () => {}
+        emit: () => {},
+        slots: {}
     };
     componentInstace.emit = emit.bind(null, componentInstace);
     return componentInstace;
 }
-
+// 初始化组件
 export function setupComponent(instance: ComponentType) {
     initProps(instance, instance.vnode.props);
-    // initSlots();
+    initSlots(instance, instance.vnode.children);
     // 初始化一个有状态的 component
     setupStatefulComponent(instance);
 }
@@ -55,4 +57,6 @@ function finishComponentSetup(instance: ComponentType) {
         instance.render = component.render;
     }
 }
+
+
 

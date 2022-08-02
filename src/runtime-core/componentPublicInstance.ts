@@ -18,5 +18,6 @@ export const CompPublicInstanceHandlers = {
 
 
 const publicProperties = {
-    $el: i => i.vnode.el 
+    $el: i => i.vnode.el,
+    $slots: i => i.slots
 }

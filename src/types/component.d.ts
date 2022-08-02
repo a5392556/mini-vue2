@@ -5,5 +5,6 @@ declare type ComponentType = {
     render: Function,
     proxy: Proxy,
     props: Object,
-    emit: Function
+    emit: Function,
+    slots: Object
 }
